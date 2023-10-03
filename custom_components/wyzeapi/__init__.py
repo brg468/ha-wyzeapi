@@ -14,9 +14,18 @@ from wyzeapy import Wyzeapy
 from wyzeapy.wyze_auth_lib import Token
 
 from .const import (
-    DOMAIN, CONF_CLIENT, ACCESS_TOKEN, REFRESH_TOKEN,
-    REFRESH_TIME, WYZE_NOTIFICATION_TOGGLE, BULB_LOCAL_CONTROL,
-    DEFAULT_LOCAL_CONTROL, KEY_ID, API_KEY
+    DOMAIN,
+    CONF_CLIENT,
+    ACCESS_TOKEN,
+    REFRESH_TOKEN,
+    REFRESH_TIME,
+    WYZE_NOTIFICATION_TOGGLE,
+    BULB_LOCAL_CONTROL,
+    BULB_LOCAL_ATTEMPTS,
+    DEFAULT_LOCAL_ATTEMPTS,
+    DEFAULT_LOCAL_CONTROL,
+    KEY_ID,
+    API_KEY,
 )
 from .token_manager import TokenManager
 
@@ -117,7 +126,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     hass.data[DOMAIN][config_entry.entry_id] = {CONF_CLIENT: client, "key_id": KEY_ID, "api_key": API_KEY}
 
-    options_dict = {BULB_LOCAL_CONTROL: config_entry.options.get(BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL)}
+    options_dict = {
+        BULB_LOCAL_CONTROL: config_entry.options.get(
+            BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL
+        ),
+        BULB_LOCAL_ATTEMPTS: config_entry.options.get(
+            BULB_LOCAL_ATTEMPTS, DEFAULT_LOCAL_ATTEMPTS
+        ),
+    }
     hass.config_entries.async_update_entry(config_entry, options=options_dict)
 
     for platform in PLATFORMS:

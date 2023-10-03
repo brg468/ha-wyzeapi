@@ -32,7 +32,8 @@
         "step": {
             "init": {
                 "data": {
-                    "bulb_local_control": "Use Local Control for Color Bulbs and Light Strips"
+                    "bulb_local_control": "Use Local Control for Color Bulbs and Light Strips",
+                    "bulb_local_attempts": "Number of failed local attempts before giving up"
                 }
             },
             "user": {

@@ -3,6 +3,7 @@
 """Platform for light integration."""
 import asyncio
 import logging
+
 # Import the device class from the component that you want to support
 from datetime import timedelta
 from typing import Any, Callable, List
@@ -29,9 +30,19 @@ from wyzeapy.services.bulb_service import Bulb
 from wyzeapy.types import DeviceTypes, PropertyIDs
 from wyzeapy.utils import create_pid_pair
 from wyzeapy.services.camera_service import Camera
-from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
+from homeassistant.helpers.dispatcher import (
+    async_dispatcher_connect,
+    async_dispatcher_send,
+)
 
-from .const import DOMAIN, CONF_CLIENT, BULB_LOCAL_CONTROL, CAMERA_UPDATED, LIGHT_UPDATED
+from .const import (
+    DOMAIN,
+    CONF_CLIENT,
+    BULB_LOCAL_CONTROL,
+    BULB_LOCAL_ATTEMPTS,
+    CAMERA_UPDATED,
+    LIGHT_UPDATED,
+)
 from .token_manager import token_exception_handler
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,8 +56,11 @@ EFFECT_FLICKER = "flicker"
 
 
 @token_exception_handler
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry,
-                            async_add_entities: Callable[[List[Any], bool], None]) -> None:
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: Callable[[List[Any], bool], None],
+) -> None:
     """
     This function sets up the entities in the config entry
 
@@ -61,8 +75,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry,
 
     bulb_service = await client.bulb_service
 
-    lights = [WyzeLight(bulb_service, light, config_entry) for light in await bulb_service.get_bulbs()]
-
+    lights = [
+        WyzeLight(bulb_service, light, config_entry)
+        for light in await bulb_service.get_bulbs()
+    ]
 
     for camera in await camera_service.get_cameras():
         # Only model that I know of that has a floodlight
@@ -85,10 +101,13 @@ class WyzeLight(LightEntity):
         self._device_type = DeviceTypes(self._bulb.product_type)
         self._config_entry = config_entry
         self._local_control = config_entry.options.get(BULB_LOCAL_CONTROL)
+        self._local_control_attempts = self._config_entry.options.get(
+            BULB_LOCAL_ATTEMPTS
+        )
         if self._device_type not in [
             DeviceTypes.LIGHT,
             DeviceTypes.MESH_LIGHT,
-            DeviceTypes.LIGHTSTRIP
+            DeviceTypes.LIGHTSTRIP,
         ]:
             raise AttributeError("Device type not supported")
 
@@ -103,12 +122,10 @@ class WyzeLight(LightEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {
-                (DOMAIN, self._bulb.mac)
-            },
+            "identifiers": {(DOMAIN, self._bulb.mac)},
             "name": self.name,
             "manufacturer": "WyzeLabs",
-            "model": self._bulb.product_model
+            "model": self._bulb.product_model,
         }
 
     @property
@@ -119,6 +136,9 @@ class WyzeLight(LightEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         options = []
         self._local_control = self._config_entry.options.get(BULB_LOCAL_CONTROL)
+        self._local_control_attempts = self._config_entry.options.get(
+            BULB_LOCAL_ATTEMPTS
+        )
 
         if kwargs.get(ATTR_BRIGHTNESS) is not None:
             brightness = round((kwargs.get(ATTR_BRIGHTNESS) / 255) * 100)
@@ -194,7 +214,11 @@ class WyzeLight(LightEntity):
 
         _LOGGER.debug("Turning on light")
         loop = asyncio.get_event_loop()
-        loop.create_task(self._bulb_service.turn_on(self._bulb, self._local_control, options))
+        loop.create_task(
+            self._bulb_service.turn_on(
+                self._bulb, self._local_control, self._local_control_attempts, options
+            )
+        )
 
         self._bulb.on = True
         self._just_updated = True
@@ -203,8 +227,15 @@ class WyzeLight(LightEntity):
     @token_exception_handler
     async def async_turn_off(self, **kwargs: Any) -> None:
         self._local_control = self._config_entry.options.get(BULB_LOCAL_CONTROL)
+        self._local_control_attempts = self._config_entry.options.get(
+            BULB_LOCAL_ATTEMPTS
+        )
         loop = asyncio.get_event_loop()
-        loop.create_task(self._bulb_service.turn_off(self._bulb, self._local_control))
+        loop.create_task(
+            self._bulb_service.turn_off(
+                self._bulb, self._local_control, self._local_control_attempts
+            )
+        )
 
         self._bulb.on = False
         self._just_updated = True
@@ -286,6 +317,7 @@ class WyzeLight(LightEntity):
                 dev_info["mode"] = "White"
             elif self._bulb.color_mode == '3':
                 dev_info["mode"] = "Effect"
+            dev_info["failed_local_attempts"] = self._bulb.local_fail_count
 
         return dev_info
 

@@ -18,4 +18,6 @@ LIGHT_UPDATED = f"{DOMAIN}.light_updated"
 WYZE_CAMERA_EVENT = "wyze_camera_event"
 
 BULB_LOCAL_CONTROL = "bulb_local_control"
+BULB_LOCAL_ATTEMPTS = "bulb_local_attempts"
+DEFAULT_LOCAL_ATTEMPTS = 3
 DEFAULT_LOCAL_CONTROL = True
