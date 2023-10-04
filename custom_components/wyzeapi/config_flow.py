@@ -13,16 +13,10 @@ from homeassistant.exceptions import HomeAssistantError
 from wyzeapy import Wyzeapy, exceptions
 
 from .const import (
-    DOMAIN,
-    ACCESS_TOKEN,
-    REFRESH_TOKEN,
-    REFRESH_TIME,
-    BULB_LOCAL_CONTROL,
-    BULB_LOCAL_ATTEMPTS,
-    DEFAULT_LOCAL_ATTEMPTS,
+    DOMAIN, ACCESS_TOKEN, REFRESH_TOKEN, 
+    REFRESH_TIME, BULB_LOCAL_CONTROL,
     DEFAULT_LOCAL_CONTROL,
-    KEY_ID,
-    API_KEY,
+    KEY_ID, API_KEY
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -157,17 +151,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     BULB_LOCAL_CONTROL,
-                    default=self.config_entry.options.get(
-                        BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL
-                    ),
-                ): bool,
-                vol.Optional(
-                    BULB_LOCAL_ATTEMPTS,
-                    default=self.config_entry.options.get(
-                        BULB_LOCAL_ATTEMPTS, DEFAULT_LOCAL_ATTEMPTS
-                    ),
-                ): int,
-            },
+                    default=self.config_entry.options.get(BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL)
+                ): bool
+            }
         )
         return self.async_show_form(step_id="init", data_schema=data_schema)
 

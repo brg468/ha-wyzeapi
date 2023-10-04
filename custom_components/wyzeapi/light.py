@@ -3,7 +3,6 @@
 """Platform for light integration."""
 import asyncio
 import logging
-
 # Import the device class from the component that you want to support
 from datetime import timedelta
 from typing import Any, Callable, List
@@ -56,11 +55,8 @@ EFFECT_FLICKER = "flicker"
 
 
 @token_exception_handler
-async def async_setup_entry(
-    hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: Callable[[List[Any], bool], None],
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry,
+                            async_add_entities: Callable[[List[Any], bool], None]) -> None:
     """
     This function sets up the entities in the config entry
 
@@ -75,10 +71,8 @@ async def async_setup_entry(
 
     bulb_service = await client.bulb_service
 
-    lights = [
-        WyzeLight(bulb_service, light, config_entry)
-        for light in await bulb_service.get_bulbs()
-    ]
+    lights = [WyzeLight(bulb_service, light, config_entry) for light in await bulb_service.get_bulbs()]
+
 
     for camera in await camera_service.get_cameras():
         # Only model that I know of that has a floodlight
@@ -107,7 +101,7 @@ class WyzeLight(LightEntity):
         if self._device_type not in [
             DeviceTypes.LIGHT,
             DeviceTypes.MESH_LIGHT,
-            DeviceTypes.LIGHTSTRIP,
+            DeviceTypes.LIGHTSTRIP
         ]:
             raise AttributeError("Device type not supported")
 
@@ -122,10 +116,12 @@ class WyzeLight(LightEntity):
     @property
     def device_info(self):
         return {
-            "identifiers": {(DOMAIN, self._bulb.mac)},
+            "identifiers": {
+                (DOMAIN, self._bulb.mac)
+            },
             "name": self.name,
             "manufacturer": "WyzeLabs",
-            "model": self._bulb.product_model,
+            "model": self._bulb.product_model
         }
 
     @property
