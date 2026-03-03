@@ -6,21 +6,24 @@ import logging
 from typing import Any, Optional
 
 import voluptuous as vol
-from homeassistant import config_entries
-from homeassistant.const import CONF_USERNAME, CONF_PASSWORD, CONF_ACCESS_TOKEN
-from homeassistant.core import callback
-from homeassistant.exceptions import HomeAssistantError
 from wyzeapy import Wyzeapy, exceptions
 
+from homeassistant import config_entries
+from homeassistant.const import CONF_ACCESS_TOKEN, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.core import callback
+from homeassistant.exceptions import HomeAssistantError
+
 from .const import (
-    DOMAIN,
     ACCESS_TOKEN,
-    REFRESH_TOKEN,
-    REFRESH_TIME,
+    API_KEY,
     BULB_LOCAL_CONTROL,
     DEFAULT_LOCAL_CONTROL,
+    DOMAIN,
     KEY_ID,
-    API_KEY,
+    REFRESH_TIME,
+    REFRESH_TOKEN,
+    RTSP_PASSWORD,
+    RTSP_USERNAME,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -153,22 +156,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return OptionsFlowHandler()
 
 
-class OptionsFlowHandler(config_entries.OptionsFlow):
+class OptionsFlowHandler(config_entries.OptionsFlowWithReload):
     """Handle an option flow for Wyze."""
 
     async def async_step_init(self, user_input=None):
         """Handle options flow."""
+
+        data = user_input or self.config_entry.options
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            return self.async_create_entry(title="", data=data)
 
         data_schema = vol.Schema(
             {
                 vol.Optional(
                     BULB_LOCAL_CONTROL,
-                    default=self.config_entry.options.get(
-                        BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL
-                    ),
-                ): bool
+                    default=data.get(BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL),
+                ): bool,
+                vol.Optional(RTSP_USERNAME, default=data.get(RTSP_USERNAME, "")): str,
+                vol.Optional(RTSP_PASSWORD, default=data.get(RTSP_PASSWORD, "")): str,
             }
         )
         return self.async_show_form(step_id="init", data_schema=data_schema)
