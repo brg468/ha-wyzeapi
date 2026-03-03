@@ -21,6 +21,8 @@ WYZE_CAMERA_EVENT = "wyze_camera_event"
 
 BULB_LOCAL_CONTROL = "bulb_local_control"
 DEFAULT_LOCAL_CONTROL = True
+RTSP_USERNAME = "rtsp_username"
+RTSP_PASSWORD = "rtsp_password"
 
 # Yunding (YD) is the provider for Wyze Lock Bolt
 YDBLE_LOCK_STATE_UUID = "00002220-0000-6b63-6f6c-2e6b636f6f6c"
