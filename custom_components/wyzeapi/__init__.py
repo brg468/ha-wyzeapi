@@ -27,6 +27,8 @@ from .const import (
     DEFAULT_LOCAL_CONTROL,
     KEY_ID,
     API_KEY,
+    RTSP_USERNAME,
+    RTSP_PASSWORD,
 )
 from .coordinator import WyzeLockBoltCoordinator
 from .token_manager import TokenManager
@@ -42,6 +44,7 @@ PLATFORMS = [
     "cover",
     "number",
     "button",
+    "camera",
 ]  # Fixme: Re add scene
 _LOGGER = logging.getLogger(__name__)
 
@@ -143,7 +146,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     options_dict = {
         BULB_LOCAL_CONTROL: config_entry.options.get(
             BULB_LOCAL_CONTROL, DEFAULT_LOCAL_CONTROL
-        )
+        ),
+        RTSP_USERNAME: config_entry.options.get(RTSP_USERNAME),
+        RTSP_PASSWORD: config_entry.options.get(RTSP_PASSWORD),
     }
     hass.config_entries.async_update_entry(config_entry, options=options_dict)
 

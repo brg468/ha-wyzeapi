@@ -35,8 +35,11 @@
     "options": {
         "step": {
             "init": {
+                "description": "RTSP credentials are optional and separate from Wyze account credientials. They must be the same for all cameras using RTSP, and not all cameras support RTSP.",
                 "data": {
-                    "bulb_local_control": "Use Local Control for Color Bulbs and Light Strips"
+                    "bulb_local_control": "Use Local Control for Color Bulbs and Light Strips",
+                    "rtsp_username": "Username for RTSP camera connection",
+                    "rtsp_password": "Password for RTSP camera connection"
                 }
             },
             "user": {
